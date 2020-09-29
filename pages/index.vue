@@ -85,6 +85,7 @@ export default {
     Logo,
     VuetifyLogo
   },
+  middleware: ['auth'],
   mounted () {
     setTimeout(() => {
       this.$notify.success({

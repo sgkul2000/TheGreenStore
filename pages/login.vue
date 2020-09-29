@@ -69,13 +69,16 @@ export default {
   methods: {
     async submitForm () {
       this.loading = true
-      await this.$auth.loginWith('local', {
-        data: {
-          email: this.email,
-          password: this.password
-        }
-      })
-      // console.log(this.$auth.user)
+      try {
+        await this.$auth.loginWith('local', {
+          data: {
+            email: this.email,
+            password: this.password
+          }
+        })
+      } catch (err) {
+        console.log(err.response.data.error)
+      }
       this.loading = false
     }
   }

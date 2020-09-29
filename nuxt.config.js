@@ -5,7 +5,7 @@ export default {
   ssr: true,
 
   // Target (https://go.nuxtjs.dev/config-target)
-  target: 'static',
+  // target: 'static',
 
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
@@ -45,11 +45,14 @@ export default {
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
     '@nuxtjs/auth',
-    'nuxt-izitoast'
+    'nuxt-izitoast',
+    'cookie-universal-nuxt'
   ],
 
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
-  axios: {},
+  axios: {
+    baseUrl: process.env.BASE_URL || 'http://localhost:8000'
+  },
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
   vuetify: {
@@ -78,6 +81,13 @@ export default {
     //     Vary: '*'
     //   }
     // }
+    terser: {
+      terserOptions: {
+        compress: {
+          drop_console: true
+        }
+      }
+    }
   },
   izitoast: {
     position: 'topCenter',
@@ -90,9 +100,9 @@ export default {
     strategies: {
       local: {
         endpoints: {
-          login: { url: 'http://localhost:8000/api/auth/login', method: 'post', propertyName: 'token' },
-          logout: { url: 'http://localhost:8000/api/auth/logout', method: 'post' },
-          user: { url: 'http://localhost:8000/api/auth/', method: 'get', propertyName: 'data' }
+          login: { url: '/auth/login', method: 'post', propertyName: 'token' },
+          logout: { url: '/auth/logout', method: 'get' },
+          user: { url: '/auth/', method: 'get', propertyName: 'user' }
         }
         // tokenRequired: true,
         // tokenType: 'bearer',
