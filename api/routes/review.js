@@ -3,8 +3,8 @@ const express = require('express')
 const router = express.Router()
 const auth = require('../middleware/auth')
 
-const User = require('./models/userModel')
-const Product = require('./models/productModel')
+// const User = require('./models/userModel')
+// const Product = require('./models/productModel')
 const Review = require('./models/reviewModel')
 
 router.get('/', passport.authenticate('jwt', { session: false }), auth.authenticateAdmin, (req, res, next) => {
@@ -33,22 +33,11 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res, ne
     stars: req.body.stars,
     description: req.body.description ? req.body.description : ''
   })
-  review.save().then(async (savedReview) => {
-    var product = await Product.findById(savedReview.product).exec()
-    var user = await User.findOne({ email: req.user.email }).exec()
-    console.log(product, user)
-    product.reviews.push(savedReview._id)
-    user.reviews.push(savedReview._id)
-    try {
-      await product.save()
-      await user.save()
-      res.send({
-        success: true,
-        data: savedReview
-      })
-    } catch (err) {
-      next(err)
-    }
+  review.save().then((savedReview) => {
+    res.send({
+      success: true,
+      data: savedReview
+    })
   }).catch(next)
 })
 
@@ -70,11 +59,13 @@ router.put('/:id', passport.authenticate('jwt', { session: false }), (req, res, 
 })
 
 router.delete('/:id', passport.authenticate('jwt', { session: false }), (req, res, next) => {
-  Review.deleteOne({ _id: req.params.id, user: req.user._id }).then((deletedReview) => {
-    res.send({
-      success: true,
-      data: deletedReview
-    })
+  Review.findOne({ _id: req.params.id }).then((review) => {
+    review.remove().then((deletedReview) => {
+      res.send({
+        success: true,
+        data: deletedReview
+      })
+    }).catch(next)
   }).catch(next)
 })
 module.exports = router
