@@ -29,19 +29,26 @@ router.get('/', passport.authenticate('jwt', { session: false }), auth.authentic
 router.post('/', passport.authenticate('jwt', { session: false }), (req, res, next) => {
   const review = new Review({
     user: req.user._id,
+    product: req.body.product,
     stars: req.body.stars,
     description: req.body.description ? req.body.description : ''
   })
-  review.save().then((savedReview) => {
-    User.findOne({ email: req.user.email }).then((user) => {
-      user.reviews.push(savedReview._id)
-      user.save().then((savedUser) => {
-        res.send({
-          success: true,
-          data: savedReview
-        })
-      }).catch(next)
-    }).catch(next)
+  review.save().then(async (savedReview) => {
+    var product = await Product.findById(savedReview.product).exec()
+    var user = await User.findOne({ email: req.user.email }).exec()
+    console.log(product, user)
+    product.reviews.push(savedReview._id)
+    user.reviews.push(savedReview._id)
+    try {
+      await product.save()
+      await user.save()
+      res.send({
+        success: true,
+        data: savedReview
+      })
+    } catch (err) {
+      next(err)
+    }
   }).catch(next)
 })
 
