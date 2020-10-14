@@ -1,0 +1,8 @@
+.authLinks{
+    display: flex;
+    flex-direction: column;
+    .nuxtLink{
+        text-decoration: none;
+        margin: 2px auto;
+    }
+}

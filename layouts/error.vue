@@ -42,3 +42,5 @@ h1 {
   font-size: 20px;
 }
 </style>
+
+<style lang="scss" src="~/assets/main.scss">

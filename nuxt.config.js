@@ -33,7 +33,8 @@ const config = {
     // https://go.nuxtjs.dev/eslint
     '@nuxtjs/eslint-module',
     // https://go.nuxtjs.dev/vuetify
-    '@nuxtjs/vuetify'
+    '@nuxtjs/vuetify',
+    'nuxt-breakpoints'
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -47,7 +48,7 @@ const config = {
 
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
-    baseURL: process.env.BASE_URL || 'http://localhost:8000'
+    baseURL: process.env.BASE_URL || 'http://localhost:8000/api'
   },
   env: {
     helloworld: 'helloworld'
@@ -57,7 +58,7 @@ const config = {
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
     theme: {
-      dark: true,
+      dark: false,
       themes: {
         dark: {
           primary: colors.blue.darken2,
@@ -67,8 +68,20 @@ const config = {
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
           success: colors.green.accent3
+        },
+        light: {
+          primary: colors.green.darken1,
+          accent: colors.green.accent2,
+          secondary: colors.green.lighten3,
+          info: colors.green.lighten1,
+          warning: colors.green.lighten1,
+          error: colors.green.lighten1,
+          success: colors.green.lighten1
         }
       }
+    },
+    icons: {
+      iconfont: 'mdi'
     }
   },
 
@@ -102,6 +115,15 @@ const config = {
           login: { url: '/auth/login', method: 'post', propertyName: 'token' },
           logout: { url: '/auth/logout', method: 'get' },
           user: { url: '/auth/', method: 'get', propertyName: 'user' }
+        },
+        redirect: {
+          login: false,
+          logout: '/',
+          callback: '/login',
+          home: '/'
+        },
+        token: {
+          prefix: '_token.'
         }
         // tokenRequired: true,
         // tokenType: 'bearer',

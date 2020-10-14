@@ -4,37 +4,48 @@
       <v-col :align-self="'center'">
         <v-card
           :loading="loading"
-          class="mx-auto my-12 py-4 px-4"
+          class="mx-auto my-12 px-4"
           max-width="500px"
           outlined
           :elevation="15"
         >
-          <v-card-title>Login</v-card-title>
-          <v-card-text>
-            <v-text-field v-model="email" :rules="rules" label="E-mail" :disabled="loading" />
-            <v-text-field
-              v-model="password"
-              :append-icon="isPassword ? 'mdi-eye' : 'mdi-eye-off'"
-              :type="isPassword ? 'text' : 'password'"
-              :rules="passwordRules"
-              label="Password"
-              required
-              :disabled="loading"
-              @click:append="isPassword = !isPassword"
-            />
-            <v-btn
-              elevation="3"
-              large
-              text
-              block
-              depressed
-              color="primary"
-              :loading="loading"
-              @click="submitForm"
-            >
-              Login
-            </v-btn>
-          </v-card-text>
+          <v-form v-model="isValid" class="py-4">
+            <v-card-title>Login</v-card-title>
+            <v-card-text>
+              <v-text-field v-model="email" :rules="rules" label="E-mail" :disabled="loading" />
+              <v-text-field
+                v-model="password"
+                :append-icon="isPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                :type="isPassword ? 'text' : 'password'"
+                :rules="passwordRules"
+                label="Password"
+                required
+                :disabled="loading"
+                @click:append="isPassword = !isPassword"
+              />
+              <v-btn
+                elevation="3"
+                large
+                text
+                block
+                depressed
+                color="primary"
+                :loading="loading"
+                class="mb-5"
+                @click="submitForm"
+              >
+                Login
+              </v-btn>
+              <div class="authLinks">
+                <NuxtLink class="nuxtLink" to="/">
+                  Sign up
+                </NuxtLink>
+                <NuxtLink class="nuxtLink" to="/">
+                  Forgot password
+                </NuxtLink>
+              </div>
+            </v-card-text>
+          </v-form>
         </v-card>
       </v-col>
     </v-row>
@@ -43,9 +54,10 @@
 
 <script>
 export default {
-  layout: 'none',
+  layout: 'basic',
   data () {
     return {
+      isValid: false,
       loading: true,
       email: '',
       password: '',
@@ -69,6 +81,13 @@ export default {
   methods: {
     async submitForm () {
       this.loading = true
+      if (!this.isValid) {
+        this.$notify.error({
+          title: 'Form validation failed!'
+        })
+        this.loading = false
+        return
+      }
       try {
         await this.$auth.loginWith('local', {
           data: {
@@ -77,10 +96,29 @@ export default {
           }
         })
       } catch (err) {
-        console.log(err.response.data.error)
+        this.$notify.error({
+          title: 'Login Failed',
+          message: err.response.data.error
+        })
+        return
       }
+      if (this.$auth.loggedIn) {
+        this.$notify.success({
+          title: 'Login Successful!'
+        })
+        // this.$router.push('/')
+        this.$router.push({ path: '/' })
+      } else {
+        this.$notify.error({
+          title: 'Login failed.',
+          message: 'Please try again'
+        })
+      }
+      console.log(this.$auth)
       this.loading = false
     }
   }
 }
 </script>
+
+<style lang="scss" scoped src="~/assets/auth.scss" />

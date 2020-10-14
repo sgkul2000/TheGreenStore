@@ -1,17 +1,17 @@
-// import Vue from 'vue'
-
+import Vue from 'vue'
 export const state = () => ({
-
+  loginModal: true
 })
 
 export const getters = {
-  routerLoading: state => state.routerLoading
+  getLoginModal: state => state.loginModal
 
 }
 
 export const mutations = {
-  setRouterLoading (state, payload) {
-    state.routerLoading = payload
+  changeLoginModal (state, value) {
+    // state.loginModal = value
+    Vue.set(state, 'loginModal', value)
   }
 }
 
