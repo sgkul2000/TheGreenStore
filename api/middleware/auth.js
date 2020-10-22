@@ -4,7 +4,7 @@ const localStrategy = require('passport-local').Strategy
 const JWTstrategy = require('passport-jwt').Strategy
 const ExtractJWT = require('passport-jwt').ExtractJwt
 const dotenv = require('dotenv')
-const User = require('../routes/models/userModel')
+const User = require('../db/models/userModel')
 dotenv.config()
 
 function authenticateToken (req, res, next) {

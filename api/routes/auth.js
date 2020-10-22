@@ -7,9 +7,8 @@ const passport = require('passport')
 const jwt = require('jsonwebtoken')
 const Bcrypt = require('bcrypt')
 // const auth = require('../middleware/auth')
+const User = require('../db/models/userModel')
 const adminRoutes = require('./admin')
-
-const User = require('./models/userModel')
 
 router.use('/admin', adminRoutes)
 
@@ -43,7 +42,7 @@ router.post(
               if (error) { return next(error) }
 
               const body = { _id: user._id, email: user.email, isAdmin: user.isAdmin, username: user.username, fullname: user.fullname, phone: user.phone, referralVode: user.referralCode }
-              const token = jwt.sign({ user: body }, process.env.PRIVATE_KEY)
+              const token = jwt.sign({ user: body }, process.env.PRIVATE_KEY, { expiresIn: '3 days' })
 
               return res.json({ token })
             }

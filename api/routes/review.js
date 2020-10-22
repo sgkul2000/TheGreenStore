@@ -5,7 +5,7 @@ const auth = require('../middleware/auth')
 
 // const User = require('./models/userModel')
 // const Product = require('./models/productModel')
-const Review = require('./models/reviewModel')
+const Review = require('../db/models/reviewModel')
 
 router.get('/', passport.authenticate('jwt', { session: false }), auth.authenticateAdmin, (req, res, next) => {
   const opts = {

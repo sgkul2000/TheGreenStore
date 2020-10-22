@@ -1,6 +1,8 @@
+// import path from 'path'
+// import fs from 'fs'
 import colors from 'vuetify/es5/util/colors'
 
-const config = {
+export default {
   // Disable server-side rendering (https://go.nuxtjs.dev/ssr-mode)
   ssr: true,
 
@@ -18,12 +20,19 @@ const config = {
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
   },
-
+  server: {
+    port: 3000,
+    host: '0.0.0.0'
+    // https: {
+    //   key: fs.readFileSync(path.resolve(__dirname, 'server.key')),
+    //   cert: fs.readFileSync(path.resolve(__dirname, 'server.crt'))
+    // }
+  },
   // Global CSS (https://go.nuxtjs.dev/config-css)
   css: ['izitoast/dist/css/iziToast.min.css'],
 
   // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-  plugins: [],
+  plugins: [{ src: '~/plugins/persistedState.js' }],
 
   // Auto import components (https://go.nuxtjs.dev/config-components)
   components: true,
@@ -41,6 +50,7 @@ const config = {
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
+    '@nuxtjs/proxy',
     '@nuxtjs/auth',
     'nuxt-izitoast',
     'cookie-universal-nuxt'
@@ -48,10 +58,9 @@ const config = {
 
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
-    baseURL: process.env.BASE_URL || 'http://localhost:8000/api'
+    baseURL: process.env.BASE_URL || 'http://127.0.0.1:8000/'
   },
   env: {
-    helloworld: 'helloworld'
   },
 
   // Vuetify module configuration (https://go.nuxtjs.dev/config-vuetify)
@@ -112,9 +121,9 @@ const config = {
     strategies: {
       local: {
         endpoints: {
-          login: { url: '/auth/login', method: 'post', propertyName: 'token' },
-          logout: { url: '/auth/logout', method: 'get' },
-          user: { url: '/auth/', method: 'get', propertyName: 'user' }
+          login: { url: 'api/auth/login', method: 'post', propertyName: 'token' },
+          logout: { url: 'api/auth/logout', method: 'get' },
+          user: { url: 'api/auth/', method: 'get', propertyName: 'user' }
         },
         redirect: {
           login: false,
@@ -132,18 +141,17 @@ const config = {
       }
     }
   },
-  serverMiddleware: {}
-}
-
-if (process.env.NODE_ENV === 'development') {
-  config.serverMiddleware = {}
-} else {
-  config.serverMiddleware = [
+  serverMiddleware: process.env.NODE_ENV === 'development' ? [
     {
       path: '/api',
       handler: '~/api/index.js'
     }
-  ]
+  ] : []
+  // proxy: process.env.NODE_ENV === 'development' ? {
+  //   '/api': {
+  //     target: 'http://127.0.0.1:8000'
+  //   }
+  // } : {}
 }
 
-export default config
+// export default config

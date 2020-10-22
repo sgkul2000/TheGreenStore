@@ -3,8 +3,8 @@ const router = express.Router()
 // const auth = require('../middleware/auth')
 const passport = require('passport')
 
-const User = require('./models/userModel')
-const Address = require('./models/addressModel')
+const Address = require('../db/models/addressModel')
+const User = require('../db/models/userModel')
 
 // get addresses
 router.get('/', passport.authenticate('jwt', { session: false }), (req, res, next) => {

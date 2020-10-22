@@ -135,7 +135,7 @@ export default {
         this.loading = false
         return
       }
-      this.$axios.post('/auth/signup', {
+      this.$axios.post('/api/auth/signup', {
         email: this.email,
         password: this.password,
         username: this.username,

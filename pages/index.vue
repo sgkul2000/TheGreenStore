@@ -85,15 +85,6 @@ export default {
   components: {
     Logo,
     VuetifyLogo
-  },
-  middleware: ['auth'],
-  mounted () {
-    setTimeout(() => {
-      this.$notify.success({
-        title: 'Hooray',
-        message: 'we\'ve done it'
-      })
-    }, 3000)
   }
 }
 </script>

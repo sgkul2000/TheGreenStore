@@ -1,17 +1,29 @@
 import Vue from 'vue'
 export const state = () => ({
-  loginModal: true
+  loginModal: false,
+  editProfileModal: false,
+  editAddressModal: {
+    status: false,
+    id: null
+  }
 })
 
 export const getters = {
-  getLoginModal: state => state.loginModal
+  getLoginModal: state => state.loginModal,
+  getEditProfileModal: state => state.editProfileModal,
+  getEditAddressModal: state => state.editAddressModal
 
 }
 
 export const mutations = {
   changeLoginModal (state, value) {
-    // state.loginModal = value
     Vue.set(state, 'loginModal', value)
+  },
+  changeEditProfileModal (state, value) {
+    Vue.set(state, 'editProfileModal', value)
+  },
+  changeEditAddressModal (state, value) {
+    Vue.set(state, 'editAddressModal', value)
   }
 }
 

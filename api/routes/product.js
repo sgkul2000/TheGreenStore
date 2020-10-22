@@ -8,7 +8,8 @@ const multer = require('multer')
 const passport = require('passport')
 const auth = require('../middleware/auth')
 
-const Product = require('./models/productModel')
+const Product = require('../db/models/productModel')
+const SubProduct = require('../db/models/subProductModel')
 
 const unlinkAsync = promisify(fs.unlink)
 
@@ -40,13 +41,9 @@ router.get('/', async (req, res, next) => {
   // console.log(req.body)
   let params = {}
   if (req.query.category) {
-    console.log(req.query.category)
     params = {
       category: req.query.category
     }
-  }
-  if (req.query.id) {
-    params._id = req.query.id
   }
   if (req.query.search) {
     params.name = {
@@ -55,7 +52,13 @@ router.get('/', async (req, res, next) => {
     }
   }
   try {
-    const products = await Product.find(params).exec()
+    const products = await Product.find(params).populate('subProducts').populate('reviews').populate({
+      path: 'reviews',
+      populate: {
+        path: 'user',
+        model: 'User'
+      }
+    }).exec()
     res.send({
       success: true,
       data: products
@@ -65,21 +68,50 @@ router.get('/', async (req, res, next) => {
   }
 })
 
+router.get('/:id', (req, res, next) => {
+  console.log(req.params.id)
+  Product.findById(req.params.id).populate('subProducts').populate('reviews').populate({
+    path: 'reviews',
+    populate: {
+      path: 'user',
+      model: 'User'
+    }
+  }).exec((err, product) => {
+    if (err) {
+      next(new Error('Product not found'))
+    }
+    res.send({
+      success: true,
+      data: product
+    })
+  })
+})
+
 router.post(
   '/',
   passport.authenticate('jwt', { session: false }), auth.authenticateAdmin,
-  upload.single('productImage'),
   async (req, res, next) => {
-    const filePath = req.file ? req.file.path.replace(path.resolve(__dirname, '../') + '/', '') : null
     console.log(req.body)
+    var subProductList = []
+    for (var i = 0; i < req.body.subProducts.length; i++) {
+      try {
+        const newSubProduct = await new SubProduct({
+          price: req.body.subProducts[i].price,
+          quantity: req.body.subProducts[i].quantity
+        })
+        var savedSubProduct = await newSubProduct.save()
+        console.log(savedSubProduct)
+        subProductList.push(savedSubProduct._id)
+      } catch (err) {
+        console.error(err)
+        next(err)
+      }
+    }
     const product = await new Product({
       name: req.body.name,
       description: req.body.description,
-      price: req.body.price,
-      quantity: req.body.quantity,
-      priority: req.body.priority,
-      image: filePath,
-      source: req.body.source ? req.body.source : null
+      subProducts: subProductList,
+      priority: req.body.priority ? req.body.priority : 0
     })
     product.save().then((product) => {
       console.log(product)
@@ -90,6 +122,27 @@ router.post(
     }).catch(next)
   }
 )
+
+router.post('/:product/subproduct', passport.authenticate('jwt', { session: false }), auth.authenticateAdmin, (req, res, next) => {
+  Product.findById(req.params.product).then(async (product) => {
+    if (!product) {
+      throw new Error('product not found')
+    }
+    var newSubProduct = await new SubProduct({
+      price: req.body.price,
+      quantity: req.body.quantity
+    })
+    newSubProduct.save().then((savedSubProduct) => {
+      product.subProducts.push(savedSubProduct._id)
+      product.save().then((savedProduct) => {
+        res.send({
+          success: true,
+          data: savedSubProduct
+        })
+      }).catch(next)
+    }).catch(next)
+  }).catch(next)
+})
 
 router.delete('/:id', passport.authenticate('jwt', { session: false }), auth.authenticateAdmin, (req, res, next) => {
   console.log(req.params.id)
@@ -121,20 +174,8 @@ router.put('/:id', passport.authenticate('jwt', { session: false }), auth.authen
     if (req.body.description) {
       product.description = req.body.description
     }
-    if (req.body.price) {
-      product.price = req.body.price
-    }
-    if (req.body.quantity) {
-      product.quantity = req.body.quantity
-    }
-    if (req.body.isAvailable) {
-      product.isAvailable = req.body.isAvailable
-    }
     if (req.body.isSpecial) {
       product.isSpecial = req.body.isSpecial
-    }
-    if (req.body.category) {
-      product.category = req.body.category
     }
     product.save().then((newProduct) => {
       res.send({
@@ -145,9 +186,10 @@ router.put('/:id', passport.authenticate('jwt', { session: false }), auth.authen
   }).catch(next)
 })
 
-router.put('/image/:id', upload.single('productImage'), (req, res, next) => {
-  const filePath = req.file.path.split('/').slice(1).join('/')
-  console.log(filePath)
+router.put('/image/:id', passport.authenticate('jwt', { session: false }), auth.authenticateAdmin, upload.single('productImage'), (req, res, next) => {
+  console.log(req.file.path.replace(path.resolve(__dirname, '../public/') + '/', ''))
+  const filePath = req.file ? req.file.path.replace(path.resolve(__dirname, '../public/') + '/', '') : null
+  // console.log(filePath)
   if (!req.params.id) {
     return next(new Error('Parameter missing!'))
   }
@@ -163,6 +205,43 @@ router.put('/image/:id', upload.single('productImage'), (req, res, next) => {
         success: true,
         data: savedProduct
       })
+    }).catch(next)
+  }).catch(next)
+})
+
+router.patch('/subproduct/:id', passport.authenticate('jwt', { session: false }), auth.authenticateAdmin, (req, res, next) => {
+  SubProduct.findById(req.params.id).then((subProduct) => {
+    if (!subProduct) {
+      throw new Error('Product could not be found')
+    }
+    if (req.body.price) {
+      subProduct.price = req.body.price
+    }
+    if (req.body.quantity) {
+      subProduct.quantity = req.body.quantity
+    }
+    subProduct.save().then((savedSubProduct) => {
+      res.send({
+        success: true,
+        data: savedSubProduct
+      })
+    }).catch(next)
+  })
+})
+
+router.delete('/:product/subproduct/:subproduct', passport.authenticate('jwt', { session: false }), auth.authenticateAdmin, (req, res, next) => {
+  Product.findById(req.params.product).then(async (product) => {
+    var arrayIndex = await product.subProducts.indexOf(req.params.subproduct)
+    await product.subProducts.splice(arrayIndex, 1)
+    product.save().then((savedUser) => {
+      SubProduct.findById(req.params.subproduct).then((subproduct) => {
+        subproduct.remove().then((removedSubProduct) => {
+          res.send({
+            success: true,
+            data: removedSubProduct
+          })
+        }).catch(next)
+      }).catch(next)
     }).catch(next)
   }).catch(next)
 })

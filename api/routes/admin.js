@@ -3,7 +3,7 @@ const express = require('express')
 const router = express.Router()
 const auth = require('../middleware/auth')
 
-const User = require('./models/userModel')
+const User = require('../db/models/userModel')
 
 router.get('/', passport.authenticate('jwt', { session: false }), auth.authenticateAdmin, (req, res, next) => {
   User.find({ isAdmin: true }).then((admins) => {

@@ -3,10 +3,10 @@ const express = require('express')
 const router = express.Router()
 const auth = require('../middleware/auth')
 
-const User = require('./models/userModel')
-const Order = require('./models/orderModel')
+const Address = require('../db/models/addressModel')
+const User = require('../db/models/userModel')
+const Order = require('../db/models/orderModel')
 // const Product = require('./models/productModel')
-const Address = require('./models/addressModel')
 
 router.get('/', passport.authenticate('jwt', { session: false }), (req, res, next) => {
   // expected params are : all, completed, id
@@ -29,12 +29,6 @@ router.get('/', passport.authenticate('jwt', { session: false }), (req, res, nex
         _id: req.query.id
       }
     }
-  } else if (req.query.id) {
-    params = {
-      _id: req.query.id,
-      user: req.user._id
-    }
-    // params._id = req.query.id
   } else {
     params = {
       user: req.user._id
@@ -48,7 +42,76 @@ router.get('/', passport.authenticate('jwt', { session: false }), (req, res, nex
     }
   })
     .populate('user')
-    .populate('cart')
+    .populate({
+      path: 'cart',
+      populate: {
+        path: 'product',
+        model: 'Product'
+      }
+    })
+    .populate({
+      path: 'cart',
+      populate: {
+        path: 'subProducts',
+        populate: {
+          path: 'subProduct',
+          model: 'SubProduct'
+        }
+      }
+    })
+    .exec()
+    .then((orders) => {
+      console.log(orders)
+      res.send({
+        success: true,
+        data: orders
+      })
+    })
+    .catch(next)
+})
+
+router.get('/:id', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+  // expected params are : all, completed, id
+  let params = {
+    user: req.user._id,
+    _id: req.params.id
+  }
+  if (req.query.admin === 1) {
+    if (parseInt(req.query.all) === 1) {
+      params = {
+        _id: req.params.id
+      }
+    } else if (parseInt(req.query.completed) === 1) {
+      params.status = 'complete'
+    } else if (parseInt(req.query.completed) === 0) {
+      params.status = 'pending'
+    }
+  }
+  console.log('user : ', req.user)
+  console.log('params', params)
+  Order.find(params, null, {
+    sort: {
+      createdAt: -1
+    }
+  })
+    .populate('user')
+    .populate({
+      path: 'cart',
+      populate: {
+        path: 'product',
+        model: 'Product'
+      }
+    })
+    .populate({
+      path: 'cart',
+      populate: {
+        path: 'subProducts',
+        populate: {
+          path: 'subProduct',
+          model: 'SubProduct'
+        }
+      }
+    })
     .exec()
     .then((orders) => {
       console.log(orders)
@@ -90,8 +153,23 @@ router.post('/', passport.authenticate('jwt', { session: false }), async (req, r
             .save()
             .then(async (updatedUser) => {
               // console.log(updatedUser)
-              await savedOrder.populate('cart')
-              await savedOrder.populate('user').execPopulate()
+              await savedOrder.populate({
+                path: 'cart',
+                populate: {
+                  path: 'product',
+                  model: 'Product'
+                }
+              })
+              await savedOrder.populate('user').populate({
+                path: 'cart',
+                populate: {
+                  path: 'subProducts',
+                  populate: {
+                    path: 'subProduct',
+                    model: 'SubProduct'
+                  }
+                }
+              }).execPopulate()
               res.send({
                 success: true,
                 data: savedOrder
@@ -133,8 +211,8 @@ router.delete('/:id', passport.authenticate('jwt', { session: false }), (req, re
         .catch(next)
       order
         .remove()
-        .then((removedOrder) => {
-          removedOrder.populate('user').execPopulate()
+        .then(async (removedOrder) => {
+          await removedOrder.populate('user').execPopulate()
           res.send({
             success: true,
             data: removedOrder
@@ -163,8 +241,9 @@ router.put('/status/:id', passport.authenticate('jwt', { session: false }), auth
     .catch(next)
 })
 
-router.put('/address/:id', passport.authenticate('jwt', { session: false }), auth.authenticateAdmin, (req, res, next) => {
-  console.log(req.params.address)
+// route to change address
+router.put('/:id/address', passport.authenticate('jwt', { session: false }), auth.authenticateAdmin, (req, res, next) => {
+  // console.log(req.params.address)
   Order.findById(req.params.id)
     .then((order) => {
       order.address = req.body.address

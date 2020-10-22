@@ -30,9 +30,10 @@
       elevate-on-scroll
       skrink-on-scroll
       color="white"
+      height="64px"
     >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-toolbar-title class="cursor-pointer" v-text="title" />
+      <v-toolbar-title class="cursor-pointer" @click="$router.push({path: '/'})" v-text="title" />
       <v-spacer />
       <v-text-field
         label="Search"
@@ -43,10 +44,13 @@
         prepend-inner-icon="mdi-magnify"
         class="SearchBar grey"
       />
-      <v-btn icon>
-        <v-badge content="6">
+      <v-btn icon @click="$router.push({path:'/cart'})">
+        <v-badge v-if="cart.length>0" :content="cart.length">
           <v-icon>mdi-cart-outline</v-icon>
         </v-badge>
+        <v-icon v-else>
+          mdi-cart-outline
+        </v-icon>
       </v-btn>
       <v-menu offset-y>
         <template v-slot:activator="{ on, attrs }">
@@ -62,8 +66,16 @@
           <v-list-item
             v-for="(item, index) in dropdown"
             :key="index"
+            v-ripple
+            class="cursor-pointer"
+            @click="$router.push({path: item.link})"
           >
-            <v-list-item-title><v-icon>mdi-account-circle</v-icon>{{ item.title }}</v-list-item-title>
+            <v-list-item-icon>
+              <v-icon>mdi-account-circle</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
+            </v-list-item-content>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -74,6 +86,7 @@
       </v-container>
     </v-main>
     <v-footer
+      :fixed="false"
       :absolute="true"
       app
       class="px-0 py-0"
@@ -112,6 +125,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import Login from '~/components/modals/Login.vue'
 export default {
   components: {
@@ -137,10 +151,12 @@ export default {
       title: 'The Green Store',
       dropdown: [
         {
-          title: 'Profile'
+          title: 'Profile',
+          link: '/user/'
         },
         {
-          title: 'Orders'
+          title: 'Orders',
+          link: '/user/orders'
         },
         {
           title: 'Logout'
@@ -155,9 +171,15 @@ export default {
     }
   },
   computed: {
+    ...mapGetters({
+      cart: 'getCart'
+    }),
     mobile: () => {
       return this.$breakpoints.sMd
     }
+  },
+  created () {
+    this.$store.dispatch('fetchProducts')
   },
   methods: {
     onScroll () {

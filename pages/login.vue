@@ -53,6 +53,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   layout: 'basic',
   data () {
@@ -64,10 +65,13 @@ export default {
       isPassword: false,
       rules: [
         value => !!value || 'Required.',
-        value => (value || '').length <= 20 || 'Max 20 characters',
         (value) => {
           const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-          return pattern.test(value) || 'Invalid e-mail.'
+          if (!value.includes('@')) {
+            return true
+          } else {
+            return pattern.test(value) || 'Invalid e-mail.'
+          }
         }
       ],
       passwordRules: [
@@ -75,7 +79,18 @@ export default {
       ]
     }
   },
+  computed: {
+    ...mapGetters({
+      loginError: 'hasAuthFailed'
+    })
+
+  },
   mounted () {
+    console.log('showing errors', this.loginError)
+    if (this.loginError) {
+      this.$notify.warning({ title: 'Please login first!' })
+      this.$store.commit('middlewareErrors', false)
+    }
     this.loading = false
   },
   methods: {
@@ -118,6 +133,7 @@ export default {
       this.loading = false
     }
   }
+
 }
 </script>
 
