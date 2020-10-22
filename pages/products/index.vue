@@ -4,7 +4,17 @@
       Products
     </div>
     <v-divider class="my-6" light />
-    <v-expansion-panels>
+    <v-text-field
+      v-model="search"
+      label="Search"
+      placeholder="Search"
+      solo
+      dense
+      hide-details="true"
+      prepend-inner-icon="mdi-magnify"
+      class="SearchBar grey my-5 mx-3"
+    />
+    <!-- <v-expansion-panels>
       <v-expansion-panel>
         <v-expansion-panel-header>
           Filters
@@ -18,19 +28,19 @@
           />
         </v-expansion-panel-content>
       </v-expansion-panel>
-    </v-expansion-panels>
+    </v-expansion-panels> -->
     <v-container fluid>
       <v-row
         v-if="isLoading"
         dense
       >
         <v-col
-          v-for="product in products"
+          v-for="product in filteredProducts"
           :key="product.name"
           cols="6"
           sm="4"
         >
-          <productCard :product="product" />
+          <ProductCard :product="product" />
         </v-col>
       </v-row>
     </v-container>
@@ -38,15 +48,15 @@
 </template>
 
 <script>
-// import axios from 'axios'
 import { mapGetters } from 'vuex'
-import productCard from '~/components/products/productCard'
+import ProductCard from '~/components/products/ProductCard'
 export default {
   components: {
-    productCard
+    ProductCard
   },
   data () {
     return {
+      search: ''
     }
   },
   computed: {
@@ -55,6 +65,13 @@ export default {
     }),
     isLoading () {
       return this.products !== {}
+    },
+    filteredProducts () {
+      if (this.search) {
+        return this.products.filter(product => product.name.toUpperCase().includes(this.search.toUpperCase()))
+      } else {
+        return this.products
+      }
     }
   },
   created () {

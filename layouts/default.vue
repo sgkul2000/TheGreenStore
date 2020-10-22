@@ -35,15 +35,11 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
       <v-toolbar-title class="cursor-pointer" @click="$router.push({path: '/'})" v-text="title" />
       <v-spacer />
-      <v-text-field
-        label="Search"
-        placeholder="Placeholder"
-        solo
-        dense
-        hide-details="true"
-        prepend-inner-icon="mdi-magnify"
-        class="SearchBar grey"
-      />
+      <v-btn icon @click="$router.push({path:'/products'})">
+        <v-icon>
+          mdi-shape-outline
+        </v-icon>
+      </v-btn>
       <v-btn icon @click="$router.push({path:'/cart'})">
         <v-badge v-if="cart.length>0" :content="cart.length">
           <v-icon>mdi-cart-outline</v-icon>
@@ -62,7 +58,7 @@
             <v-icon>mdi-account-circle</v-icon>
           </v-btn>
         </template>
-        <v-list>
+        <v-list dense>
           <v-list-item
             v-for="(item, index) in dropdown"
             :key="index"
@@ -70,7 +66,7 @@
             class="cursor-pointer"
             @click="$router.push({path: item.link})"
           >
-            <v-list-item-icon>
+            <v-list-item-icon class="mr-3">
               <v-icon>mdi-account-circle</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
@@ -121,15 +117,18 @@
       </v-card>
     </v-footer>
     <login />
+    <FeedbackModal />
   </v-app>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import Login from '~/components/modals/Login.vue'
+import FeedbackModal from '~/components/modals/feedback'
 export default {
   components: {
-    Login
+    Login,
+    FeedbackModal
   },
   data () {
     return {

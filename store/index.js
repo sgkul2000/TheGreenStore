@@ -64,7 +64,6 @@ export const mutations = {
     var PObj = state.cart.find(product => product.product._id === payload.product._id)
     var subPObj = PObj.subProducts.find(subProduct => subProduct.subProduct._id === payload.subProduct._id)
     if (subPObj.quantity < 2) {
-      console.log('here')
       if (PObj.subProducts.length < 2) {
         state.cart = state.cart.filter(product => product.product._id !== PObj.product._id)
       } else {
@@ -82,7 +81,6 @@ export const actions = {
   },
   fetchProducts ({ state, commit }) {
     this.$axios.get('/api/product').then((res) => {
-      console.log(res.data.data)
       commit('setProducts', res.data.data)
     }).catch((err) => {
       console.error(err)

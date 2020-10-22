@@ -29,7 +29,6 @@ router.get('/', passport.authenticate('jwt', { session: false }), auth.authentic
 router.post('/', passport.authenticate('jwt', { session: false }), (req, res, next) => {
   const review = new Review({
     user: req.user._id,
-    product: req.body.product,
     stars: req.body.stars,
     description: req.body.description ? req.body.description : ''
   })

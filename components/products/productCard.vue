@@ -10,25 +10,6 @@
         @click="redirectProduct(product._id)"
       >
         <v-card-title class="pb-2" v-text="product.name" />
-        <v-card-subtitle class="py-2">
-          <v-row
-            align="center"
-            class="mx-0"
-          >
-            <v-rating
-              color="amber"
-              :value="4.5"
-              dense
-              half-increments
-              readonly
-              size="14"
-            />
-            <div class="white--text ml-4">
-              {{ starCount(product.reviews) }} ({{ product.reviews.length }})
-            </div>
-            <v-spacer />
-          </v-row>
-        </v-card-subtitle>
         <v-btn class="productShareBtn" icon>
           <v-icon>mdi-share-variant</v-icon>
         </v-btn>
@@ -55,7 +36,7 @@
             />
           </v-col>
           <v-col class="py-1" cols="12" lg="6">
-            <v-btn text block color="primary">
+            <v-btn text block color="primary" @click="addToCart">
               Add to cart
             </v-btn>
           </v-col>
@@ -100,12 +81,11 @@ export default {
     getItemText (item) {
       return `₹${item.price} / ${item.quantity} Kg`
     },
-    starCount (reviews) {
-      let starSum = 0
-      for (let i = 0; i < reviews.length; i++) {
-        starSum += reviews[i].stars
-      }
-      return (reviews.length !== 0 ? starSum / reviews.length : 0).toFixed(1)
+    addToCart () {
+      this.$store.commit('appendCart', {
+        product: this.product,
+        subProduct: this.selected
+      })
     },
     redirectProduct (id) {
       this.$router.push({ path: '/products/' + id })

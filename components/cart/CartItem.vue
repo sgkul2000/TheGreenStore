@@ -34,12 +34,12 @@
               :key="subProduct._id"
             >
               <td>{{ subProduct.price }}</td>
-              <td>{{ subProduct.quantity }}</td>
+              <td>{{ subProduct.quantity*subProduct.subProduct.quantity }} Kg</td>
               <td class="text-right">
                 <v-btn icon color="red" @click="removeFromCart(subProduct)">
                   <v-icon>mdi-minus</v-icon>
                 </v-btn>
-                3
+                {{ subProduct.quantity }}
                 <v-btn icon color="green" @click="addToCart(subProduct)">
                   <v-icon>mdi-plus</v-icon>
                 </v-btn>

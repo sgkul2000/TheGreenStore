@@ -29,21 +29,6 @@
                       {{ product.name }}
                     </span>
                   </v-card-title>
-
-                  <v-card-subtitle class="d-flex flex-row">
-                    <v-rating
-                      :value="starCount(product.reviews)"
-                      color="amber"
-                      dense
-                      half-increments
-                      readonly
-                      size="14"
-                      class=""
-                    />
-                    <div class="grey--text ml-4 text-subtitle-1">
-                      {{ starCount(product.reviews) }} ({{ product.reviews.length }})
-                    </div>
-                  </v-card-subtitle>
                   <v-card-text v-if="product.isAvailable && product.subProducts.length>1" class="price">
                     starting from ₹ {{ product.subProducts[getLowest].price }} / {{ product.subProducts[getLowest].quantity }} Kg
                   </v-card-text>
@@ -63,9 +48,44 @@
                       hide-details
                       solo
                     />
-                    <v-btn class="mt-4" color="primary" block @click="addToCart(product)">
+                    <v-btn class="mt-4" color="primary" block @click="addToCart()">
                       Add to cart
                     </v-btn>
+                    <v-simple-table v-if="cartSubProducts.length > 0">
+                      <template v-slot:default>
+                        <thead>
+                          <tr>
+                            <th class="text-left">
+                              Price
+                            </th>
+                            <th class="text-left">
+                              Quantity
+                            </th>
+                            <th class="text-right">
+                              Manage
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr
+                            v-for="subProduct in cartSubProducts"
+                            :key="subProduct._id"
+                          >
+                            <td>{{ subProduct.price }}</td>
+                            <td>{{ subProduct.quantity*subProduct.subProduct.quantity }} Kg</td>
+                            <td class="text-right">
+                              <v-btn icon color="red" @click="removeFromCart(subProduct)">
+                                <v-icon>mdi-minus</v-icon>
+                              </v-btn>
+                              {{ subProduct.quantity }}
+                              <v-btn icon color="green" @click="addToCart(subProduct)">
+                                <v-icon>mdi-plus</v-icon>
+                              </v-btn>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </template>
+                    </v-simple-table>
                   </v-card-text>
                   <v-card-text class="pt-0">
                     Description:<br>
@@ -77,39 +97,12 @@
           </v-card>
         </v-col>
       </v-row>
-      <v-row>
-        <v-col v-for="review in getReviews" :key="review._id" cols="12">
-          <v-hover v-slot:default="{ hover }">
-            <v-card :elevation="hover ? 5 : 0" class="reviewCard" :class="hover ? 'cardHover' : ''">
-              <v-card-title class="text-subtitle-1 pb-2">
-                <v-row class="px-3">
-                  <div class="text-subtitle-1">
-                    {{ review.user.fullname }}
-                  </div>
-                  <v-rating
-                    :value="review.stars"
-                    color="amber"
-                    dense
-                    half-increments
-                    readonly
-                    size="14"
-                    class="ml-1"
-                  />
-                </v-row>
-              </v-card-title>
-              <v-card-subtitle />
-              <v-card-text>
-                {{ review.description }}
-              </v-card-text>
-            </v-card>
-          </v-hover>
-        </v-col>
-      </v-row>
     </v-container>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   async asyncData ({ app, params }) {
     const { data } = await app.$axios.get('/api/product/' + params.name)
@@ -121,6 +114,16 @@ export default {
     }
   },
   computed: {
+    ...mapGetters({
+      cart: 'getCart'
+    }),
+    cartSubProducts () {
+      try {
+        return (this.cart.find(product => product.product._id === this.product._id)).subProducts
+      } catch (err) {
+        return []
+      }
+    },
     getLowest () {
       let lowest = 0
       for (let i = 0; i < this.product.subProducts.length; i++) {
@@ -129,30 +132,26 @@ export default {
         }
       }
       return lowest
-    },
-    getReviews () {
-      return this.product.reviews.filter(review => review.description !== '')
     }
   },
   mounted () {
     this.selected = this.product.subProducts[this.getLowest]
   },
   methods: {
-    addToCart () {
+    addToCart (subProduct) {
       this.$store.commit('appendCart', {
         product: this.product,
-        subProduct: this.selected
+        subProduct: subProduct ? subProduct.subProduct : this.selected
       })
-    },
-    starCount (reviews) {
-      let starSum = 0
-      for (let i = 0; i < reviews.length; i++) {
-        starSum += reviews[i].stars
-      }
-      return parseFloat((reviews.length !== 0 ? starSum / reviews.length : 0).toFixed(1))
     },
     getItemText (item) {
       return `₹${item.price} / ${item.quantity} Kg`
+    },
+    removeFromCart (subProduct) {
+      this.$store.commit('popCart', {
+        product: this.product,
+        subProduct: subProduct.subProduct
+      })
     }
   }
 

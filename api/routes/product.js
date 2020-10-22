@@ -52,13 +52,7 @@ router.get('/', async (req, res, next) => {
     }
   }
   try {
-    const products = await Product.find(params).populate('subProducts').populate('reviews').populate({
-      path: 'reviews',
-      populate: {
-        path: 'user',
-        model: 'User'
-      }
-    }).exec()
+    const products = await Product.find(params).populate('subProducts').exec()
     res.send({
       success: true,
       data: products
@@ -70,13 +64,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:id', (req, res, next) => {
   console.log(req.params.id)
-  Product.findById(req.params.id).populate('subProducts').populate('reviews').populate({
-    path: 'reviews',
-    populate: {
-      path: 'user',
-      model: 'User'
-    }
-  }).exec((err, product) => {
+  Product.findById(req.params.id).populate('subProducts').exec((err, product) => {
     if (err) {
       next(new Error('Product not found'))
     }

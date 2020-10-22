@@ -2,6 +2,7 @@ import Vue from 'vue'
 export const state = () => ({
   loginModal: false,
   editProfileModal: false,
+  feedbackModal: false,
   editAddressModal: {
     status: false,
     id: null
@@ -11,7 +12,8 @@ export const state = () => ({
 export const getters = {
   getLoginModal: state => state.loginModal,
   getEditProfileModal: state => state.editProfileModal,
-  getEditAddressModal: state => state.editAddressModal
+  getEditAddressModal: state => state.editAddressModal,
+  getFeedbackModal: state => state.feedbackModal
 
 }
 
@@ -24,6 +26,9 @@ export const mutations = {
   },
   changeEditAddressModal (state, value) {
     Vue.set(state, 'editAddressModal', value)
+  },
+  changeFeedbackModal (state, value) {
+    Vue.set(state, 'feedbackModal', value)
   }
 }
 
