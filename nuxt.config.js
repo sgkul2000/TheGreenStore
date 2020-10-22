@@ -21,8 +21,8 @@ export default {
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
   },
   server: {
-    port: 3000,
-    host: '0.0.0.0'
+    port: process.env.PORT || 3000
+    // host: '0.0.0.0'
     // https: {
     //   key: fs.readFileSync(path.resolve(__dirname, 'server.key')),
     //   cert: fs.readFileSync(path.resolve(__dirname, 'server.crt'))
