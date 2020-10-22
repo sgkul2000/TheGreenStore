@@ -49,7 +49,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import ProductCard from '~/components/products/ProductCard'
+import ProductCard from '../../components/products/ProductCard'
 export default {
   components: {
     ProductCard
