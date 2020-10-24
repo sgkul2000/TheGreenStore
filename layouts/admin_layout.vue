@@ -40,6 +40,33 @@
           mdi-home
         </v-icon>
       </v-btn>
+      <v-menu offset-y>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            icon
+            v-bind="attrs"
+            v-on="on"
+          >
+            <v-icon>mdi-account-circle</v-icon>
+          </v-btn>
+        </template>
+        <v-list dense>
+          <v-list-item
+            v-for="(item, index) in dropdown"
+            :key="index"
+            v-ripple
+            class="cursor-pointer"
+            @click="$router.push({path: item.link})"
+          >
+            <v-list-item-icon class="mr-3">
+              <v-icon>mdi-account-circle</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-app-bar>
     <v-main>
       <v-container>
@@ -81,19 +108,11 @@
         </v-card-text>
       </v-card>
     </v-footer>
-    <login />
-    <FeedbackModal />
   </v-app>
 </template>
 
 <script>
-import Login from '~/components/modals/Login.vue'
-import FeedbackModal from '~/components/modals/feedback'
 export default {
-  components: {
-    Login,
-    FeedbackModal
-  },
   data () {
     return {
       clipped: true,
@@ -108,17 +127,17 @@ export default {
         {
           icon: 'mdi-chart-bubble',
           title: 'Products',
-          to: '/admin/products'
+          to: '/products'
         },
         {
           icon: 'mdi-chart-bubble',
           title: 'Orders',
-          to: '/admin/orders'
+          to: '/orders'
         },
         {
           icon: 'mdi-chart-bubble',
           title: 'Products',
-          to: '/admin/admins'
+          to: '/admins'
         }
       ],
       title: 'TGS Admin Panel',
@@ -148,7 +167,7 @@ export default {
       return this.$breakpoints.sMd
     }
   },
-  created () {
+  mounted () {
     this.$store.dispatch('fetchProducts')
   },
   methods: {

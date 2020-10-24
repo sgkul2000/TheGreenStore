@@ -1,7 +1,7 @@
 <template>
   <div id="userMain">
     <v-card id="profileMain" class="my-4 BtnWrapper">
-      <v-btn icon class="editBtn">
+      <v-btn icon class="editBtn" @click="$store.commit('modals/changeEditProfileModal', true)">
         <v-icon>
           mdi-pencil-outline
         </v-icon>

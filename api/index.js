@@ -45,11 +45,12 @@ app.use(BodyParser.json())
 app.use(express.static(path.join(__dirname, '/public')))
 
 // including routes
-app.use('/api/auth', authRouter)
-app.use('/api/product', productRouter)
-app.use('/api/order', orderRouter)
-app.use('/api/address', addressRouter)
-app.use('/api/review', reviewRouter)
+const routeVariable = require.main === module ? '/api' : ''
+app.use(routeVariable + '/auth', authRouter)
+app.use(routeVariable + '/product', productRouter)
+app.use(routeVariable + '/order', orderRouter)
+app.use(routeVariable + '/address', addressRouter)
+app.use(routeVariable + '/review', reviewRouter)
 
 // view route
 app.use('/', viewRouter)

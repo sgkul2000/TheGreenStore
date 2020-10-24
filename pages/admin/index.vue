@@ -1,12 +1,12 @@
 <template>
   <div class="">
-    helloworld
+    welcome to the admin panel
   </div>
 </template>
 
 <script>
 export default {
-
+  layout: 'admin_layout'
 }
 </script>
 

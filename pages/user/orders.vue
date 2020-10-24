@@ -38,7 +38,7 @@
 <script>
 import OrderCard from '~/components/orders/orderCard'
 export default {
-  middleware: 'auth',
+  middleware: 'user-auth',
   components: {
     OrderCard
   },

@@ -1,0 +1,11 @@
+#adminProductMain{
+    .editBtns{
+        display:flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: row;
+        position: absolute;
+        right: 5%;
+        top: 10%;
+    }
+}

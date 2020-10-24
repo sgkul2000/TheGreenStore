@@ -1,5 +1,3 @@
-// import path from 'path'
-// import fs from 'fs'
 import colors from 'vuetify/es5/util/colors'
 
 export default {
@@ -11,7 +9,7 @@ export default {
 
   // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
-    titleTemplate: '%s - greenStore',
+    titleTemplate: '%s - The Green Store',
     title: 'greenStore',
     meta: [
       { charset: 'utf-8' },
@@ -21,8 +19,8 @@ export default {
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
   },
   server: {
-    port: process.env.PORT || 3000
-    // host: '0.0.0.0'
+    port: process.env.PORT || 3000,
+    host: '0.0.0.0'
     // https: {
     //   key: fs.readFileSync(path.resolve(__dirname, 'server.key')),
     //   cert: fs.readFileSync(path.resolve(__dirname, 'server.crt'))
@@ -43,14 +41,21 @@ export default {
     '@nuxtjs/eslint-module',
     // https://go.nuxtjs.dev/vuetify
     '@nuxtjs/vuetify',
-    'nuxt-breakpoints'
+    'nuxt-breakpoints',
+    [
+      '@nuxtjs/router',
+      {
+        path: 'router',
+        fileName: 'index.js',
+        keepDefaultRouter: true
+      }
+    ]
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
-    '@nuxtjs/proxy',
     '@nuxtjs/auth',
     'nuxt-izitoast',
     'cookie-universal-nuxt'
@@ -58,7 +63,7 @@ export default {
 
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
-    baseURL: process.env.BASE_URL || 'http://127.0.0.1:8000/'
+    baseURL: process.env.BASE_URL || 'http://192.168.0.103:3000/'
   },
   env: {
   },
@@ -96,12 +101,12 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
-    // devMiddleware: {
-    //   headers: {
-    //     'Cache-Control': 'no-store',
-    //     Vary: '*'
-    //   }
-    // }
+    devMiddleware: {
+      headers: {
+        'Cache-Control': 'no-store',
+        Vary: '*'
+      }
+    },
     terser: {
       terserOptions: {
         compress: {
@@ -141,17 +146,19 @@ export default {
       }
     }
   },
-  serverMiddleware: process.env.NODE_ENV === 'development' ? [
+  // serverMiddleware: process.env.NODE_ENV === 'development' ? [
+  //   {
+  //     path: '/api',
+  //     handler: '~/api/index.js'
+  //   }
+  // ] : []
+  serverMiddleware: [
     {
       path: '/api',
-      handler: '~/api/index.js'
+      handler: '~/api/index.js',
+      prefix: true
     }
-  ] : []
-  // proxy: process.env.NODE_ENV === 'development' ? {
-  //   '/api': {
-  //     target: 'http://127.0.0.1:8000'
-  //   }
-  // } : {}
+  ]
 }
 
 // export default config
