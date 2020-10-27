@@ -63,7 +63,7 @@ export default {
 
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {
-    baseURL: process.env.BASE_URL || 'http://192.168.0.103:3000/'
+    baseURL: process.env.BASE_URL || 'http://0.0.0.0:3000/'
   },
   env: {
   },
@@ -86,11 +86,11 @@ export default {
         light: {
           primary: colors.green.darken1,
           accent: colors.green.accent2,
-          secondary: colors.green.lighten3,
-          info: colors.green.lighten1,
-          warning: colors.green.lighten1,
-          error: colors.green.lighten1,
-          success: colors.green.lighten1
+          secondary: colors.blue.darken2,
+          info: colors.orange.darken1,
+          warning: colors.yellow.darken1,
+          error: colors.red.darken1,
+          success: colors.green.base
         }
       }
     },
@@ -134,7 +134,7 @@ export default {
           login: false,
           logout: '/',
           callback: '/login',
-          home: '/'
+          home: false
         },
         token: {
           prefix: '_token.'

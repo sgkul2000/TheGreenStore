@@ -88,7 +88,7 @@ export default {
         fullname: this.newFullname,
         phone: this.newPhone
       }).then(({ data }) => {
-        console.log(data)
+        // console.log(data)
         this.$notify.success({
           title: 'Edit Successful'
         })

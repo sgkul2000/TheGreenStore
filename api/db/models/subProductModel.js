@@ -11,13 +11,7 @@ const SubProductSchema = new mongoose.Schema(
       type: Number,
       required: true,
       trim: true
-    },
-    isAvailable: {
-      type: Boolean,
-      required: true,
-      default: true
     }
-
   },
   {
     timestamps: true,

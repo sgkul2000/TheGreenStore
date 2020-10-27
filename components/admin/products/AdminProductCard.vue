@@ -3,7 +3,7 @@
     <v-card>
       <v-img
         v-ripple
-        :src="'http://localhost:8000/'+product.image"
+        :src="'/api/'+product.image"
         class="white--text align-end"
         gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
         height="200px"
@@ -16,8 +16,14 @@
       </v-img>
       <!-- <v-card-text>
             </v-card-text> -->
-      <v-card-subtitle v-if="product.subProducts.length>1" class="pt-2 pb-0">
+      <v-card-subtitle v-if="product.isAvailable && product.subProducts.length>1" class="pt-2 pb-0">
         Starting from ₹{{ product.subProducts[getLowest].price }} / {{ product.subProducts[getLowest].quantity }} Kg
+      </v-card-subtitle>
+      <v-card-subtitle v-else-if="product.isAvailable && product.subProducts.length===1" class="pt-2 pb-0">
+        ₹ {{ product.subProducts[0].price }} / {{ product.subProducts[0].quantity }} Kg
+      </v-card-subtitle>
+      <v-card-subtitle v-else class="pt-2 pb-0">
+        Not Available
       </v-card-subtitle>
       <v-card-actions>
         <v-row

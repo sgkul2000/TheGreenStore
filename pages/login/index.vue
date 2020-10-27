@@ -87,9 +87,12 @@ export default {
   },
   mounted () {
     console.log('showing errors', this.loginError)
-    if (this.loginError) {
-      this.$notify.warning({ title: 'Please login first!' })
-      this.$store.commit('middlewareErrors', false)
+    if (this.loginError.status) {
+      this.$notify.warning({ title: this.loginError.message })
+      this.$store.commit('middlewareErrors', {
+        status: false,
+        message: ''
+      })
     }
     this.loading = false
   },
@@ -129,7 +132,6 @@ export default {
           message: 'Please try again'
         })
       }
-      console.log(this.$auth)
       this.loading = false
     }
   }

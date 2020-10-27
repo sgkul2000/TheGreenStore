@@ -51,6 +51,8 @@
 import { mapGetters } from 'vuex'
 import AdminProductCard from '~/components/admin/products/AdminProductCard'
 export default {
+  layout: 'admin_layout',
+  middleware: ['user-auth', 'admin-auth'],
   components: {
     AdminProductCard
   },

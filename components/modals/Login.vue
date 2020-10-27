@@ -131,7 +131,6 @@ export default {
           message: 'Please try again'
         })
       }
-      console.log(this.$auth)
       this.loading = false
     },
     hideModal () {

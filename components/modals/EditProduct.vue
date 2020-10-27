@@ -42,10 +42,13 @@
             depressed
             color="primary"
             :loading="loading"
-            class="mb-5"
+            class="my-3"
             @click="submitForm"
           >
             Submit
+          </v-btn>
+          <v-btn text color="warning" class="mt-3" block @click="$emit('hide')">
+            CANCEL
           </v-btn>
         </v-card-text>
       </v-form>

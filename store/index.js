@@ -4,7 +4,10 @@ export const state = () => ({
   products: [],
   cart: [],
   orderAddress: {},
-  authFailed: false
+  authFailed: {
+    status: false,
+    message: ''
+  }
 })
 
 export const getters = {

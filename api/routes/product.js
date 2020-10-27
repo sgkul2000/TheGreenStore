@@ -140,7 +140,17 @@ router.delete('/:id', passport.authenticate('jwt', { session: false }), auth.aut
     try {
       await unlinkAsync(path.resolve('/', __dirname, '../', (product.image)))
     } catch (err) {
-      console.error(err)
+      if (err.message !== 'The "path" argument must be of type string. Received undefined') {
+        console.error(err)
+      }
+    }
+    for (let i = 0; i < product.subProducts.length; i++) {
+      try {
+        await SubProduct.deleteMany({ product: req.params.id })
+      } catch (err) {
+        console.error(err)
+        next(err)
+      }
     }
     product.remove().then((product) => {
       res.send({
@@ -153,17 +163,20 @@ router.delete('/:id', passport.authenticate('jwt', { session: false }), auth.aut
 
 router.put('/:id', passport.authenticate('jwt', { session: false }), auth.authenticateAdmin, (req, res, next) => {
   console.log(req.params.id)
-  console.log(req.body)
+  console.log(req.body.isSpecial)
   Product.findById(req.params.id).then((product) => {
     console.log('product', product)
-    if (req.body.name) {
+    if (typeof req.body.name !== 'undefined') {
       product.name = req.body.name
     }
-    if (req.body.description) {
+    if (typeof req.body.description !== 'undefined') {
       product.description = req.body.description
     }
-    if (req.body.isSpecial) {
+    if (typeof req.body.isSpecial !== 'undefined') {
       product.isSpecial = req.body.isSpecial
+    }
+    if (typeof req.body.isAvailable !== 'undefined') {
+      product.isAvailable = req.body.isAvailable
     }
     product.save().then((newProduct) => {
       res.send({
@@ -197,24 +210,24 @@ router.put('/image/:id', passport.authenticate('jwt', { session: false }), auth.
   }).catch(next)
 })
 
-router.patch('/subproduct/:id', passport.authenticate('jwt', { session: false }), auth.authenticateAdmin, (req, res, next) => {
-  SubProduct.findById(req.params.id).then((subProduct) => {
-    if (!subProduct) {
-      throw new Error('Product could not be found')
-    }
-    if (req.body.price) {
-      subProduct.price = req.body.price
-    }
-    if (req.body.quantity) {
-      subProduct.quantity = req.body.quantity
-    }
-    subProduct.save().then((savedSubProduct) => {
-      res.send({
-        success: true,
-        data: savedSubProduct
-      })
-    }).catch(next)
-  })
+router.put('/:product/subproduct/:subproduct', passport.authenticate('jwt', { session: false }), auth.authenticateAdmin, (req, res, next) => {
+  Product.findById(req.params.product).then(async (product) => {
+    var arrayIndex = await product.subProducts.indexOf(req.params.subproduct)
+    SubProduct.findById(product.subProducts[arrayIndex]).then((subProduct) => {
+      if (typeof req.body.price !== 'undefined') {
+        subProduct.price = req.body.price
+      }
+      if (typeof req.body.quantity !== 'undefined') {
+        subProduct.quantity = req.body.quantity
+      }
+      subProduct.save().then((savedSubProduct) => {
+        res.send({
+          success: true,
+          data: savedSubProduct
+        })
+      }).catch(next)
+    })
+  }).catch(next)
 })
 
 router.delete('/:product/subproduct/:subproduct', passport.authenticate('jwt', { session: false }), auth.authenticateAdmin, (req, res, next) => {
