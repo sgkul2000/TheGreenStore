@@ -33,7 +33,7 @@
       height="64px"
     >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-toolbar-title class="cursor-pointer" @click="$router.push({path: '/admin'})" v-text="title" />
+      <v-toolbar-title class="cursor-pointer" @click="$router.push({path: '/'})" v-text="title" />
       <v-spacer />
       <v-btn icon @click="$router.push({path:'/'})">
         <v-icon>

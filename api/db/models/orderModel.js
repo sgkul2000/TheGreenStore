@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const mongoosePaginate = require('mongoose-paginate-v2')
 const notFound = require('../plugins/notFound')
 const Product = require('./productModel')
 const OrderSchema = new mongoose.Schema(
@@ -59,6 +60,7 @@ const OrderSchema = new mongoose.Schema(
 )
 
 OrderSchema.plugin(notFound)
+OrderSchema.plugin(mongoosePaginate)
 
 OrderSchema.pre('save', async function (next) {
   try {

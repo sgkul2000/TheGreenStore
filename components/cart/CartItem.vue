@@ -9,7 +9,7 @@
         size="64px"
         class="mr-3"
       >
-        <v-img :aspect-ratio="1" :src="'http://localhost:8000/' + item.product.image" :alt="'Product Image - ' + item.product.name" />
+        <v-img :aspect-ratio="1" :src="'/api/' + item.product.image" :alt="'Product Image - ' + item.product.name" />
       </v-avatar> {{ item.product.name }} <v-spacer /> {{ getTotalWeight }} · {{ getTotal }}
     </v-expansion-panel-header>
     <v-expansion-panel-content>

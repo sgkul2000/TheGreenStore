@@ -23,78 +23,76 @@ router.post(
   }
 )
 
-router.post(
-  '/login',
-  (req, res, next) => {
-    passport.authenticate(
-      'login',
-      (err, user, info) => {
-        try {
-          if (err || !user) {
-            const error = new Error('An error occurred.')
-
-            return next(error)
-          }
-          req.login(
-            user,
-            { session: false },
-            (error) => {
-              if (error) { return next(error) }
-
-              const body = { _id: user._id, email: user.email, isAdmin: user.isAdmin, username: user.username, fullname: user.fullname, phone: user.phone, referralVode: user.referralCode }
-              const token = jwt.sign({ user: body }, process.env.PRIVATE_KEY, { expiresIn: '3 days' })
-
-              return res.json({ token })
-            }
-          )
-        } catch (error) {
-          return next(error)
+router.post('/login', (req, res, next) => {
+  passport.authenticate('login', (err, user, info) => {
+    try {
+      if (err || !user) {
+        if (!user) {
+          return next(new Error('User not found'))
+        } else if (err) {
+          return next(err)
+        } else {
+          return next(new Error('An error occurred.'))
         }
       }
-    )(req, res, next)
+      req.login(user, { session: false }, (error) => {
+        if (error) {
+          return next(error)
+        }
+
+        const body = {
+          _id: user._id,
+          email: user.email,
+          isAdmin: user.isAdmin,
+          username: user.username,
+          fullname: user.fullname,
+          phone: user.phone,
+          referralVode: user.referralCode
+        }
+        const token = jwt.sign({ user: body }, process.env.PRIVATE_KEY, {
+          expiresIn: '3 days'
+        })
+
+        return res.json({ token })
+      })
+    } catch (error) {
+      return next(error)
+    }
+  })(req, res, next)
+})
+
+router.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    User.findOne({
+      email: req.user.email
+    })
+      .select('-password')
+      .exec(async (err, user) => {
+        if (err) {
+          console.error(err)
+          return res.status(400).send({
+            success: false,
+            error: err
+          })
+        }
+        await user.populate('orders')
+        await user.populate('addresses').execPopulate()
+        res.send({
+          success: true,
+          user
+        })
+      })
   }
 )
 
-router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => {
-  User.findOne({
-    email: req.user.email
-  })
-    .select('-password')
-    .exec(async (err, user) => {
-      if (err) {
-        console.error(err)
-        return res.status(400).send({
-          success: false,
-          error: err
-        })
-      }
-      await user.populate('orders')
-      await user.populate('addresses').execPopulate()
+router.put(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    User.findOne({ email: req.user.email }, (err, user) => {
       console.log(user)
-      res.send({
-        success: true,
-        user
-      })
-    })
-})
-
-router.put('/', passport.authenticate('jwt', { session: false }), (req, res) => {
-  User.findOne({ email: req.user.email }, (err, user) => {
-    console.log(user)
-    if (err) {
-      console.error(err)
-      return res.status(400).send({
-        success: false,
-        error: err
-      })
-    }
-    if (req.body.fullname) {
-      user.fullname = req.body.fullname
-    }
-    if (req.body.phone) {
-      user.phone = req.body.phone
-    }
-    user.save((err, savedUser) => {
       if (err) {
         console.error(err)
         return res.status(400).send({
@@ -102,13 +100,28 @@ router.put('/', passport.authenticate('jwt', { session: false }), (req, res) => 
           error: err
         })
       }
-      res.status(201).send({
-        success: true,
-        data: savedUser
+      if (req.body.fullname) {
+        user.fullname = req.body.fullname
+      }
+      if (req.body.phone) {
+        user.phone = req.body.phone
+      }
+      user.save((err, savedUser) => {
+        if (err) {
+          console.error(err)
+          return res.status(400).send({
+            success: false,
+            error: err
+          })
+        }
+        res.status(201).send({
+          success: true,
+          data: savedUser
+        })
       })
     })
-  })
-})
+  }
+)
 
 router.post('/resetpassword', (req, res) => {
   console.log(req.body)

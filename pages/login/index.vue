@@ -116,8 +116,9 @@ export default {
       } catch (err) {
         this.$notify.error({
           title: 'Login Failed',
-          message: err.response.data.error
+          message: err.response ? err.response.data.message : ''
         })
+        this.loading = false
         return
       }
       if (this.$auth.loggedIn) {

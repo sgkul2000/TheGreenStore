@@ -14,7 +14,7 @@
                     tile
                     size="100%"
                   >
-                    <v-img :aspect-ratio="1" width="100%" :src="'http://localhost:8000/' + product.image" :alt="'Product Image - ' + product.name" />
+                    <v-img :aspect-ratio="1" width="100%" :src="'/api/' + product.image" :alt="'Product Image - ' + product.name" />
                     <v-icon v-if="product.isSpecial" class="specialProductStar" color="yellow">
                       mdi-star
                     </v-icon>
